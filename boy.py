@@ -124,8 +124,9 @@ class Boy:
             self.autorun.draw(self)
         elif self.state == 'SLEEP':
             row = 300 if self.face_dir == 1 else 200
+            angle = (pi / 2) * self.face_dir
             self.image.clip_composite_draw(
-                0, row, 100, 100, pi / 2, '', self.x, self.y - 25,
+                0, row, 100, 100, angle, '', self.x, self.y - 25,
                 100, 100,
             )
         elif self.state == 'RUN':
