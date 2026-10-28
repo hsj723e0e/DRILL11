@@ -8,15 +8,34 @@ class AutoRun:
     SPRITE_SIZE = 100
     CANVAS_WIDTH = 800
 
+    @property
+    def left_edge(self):
+        return self.SPRITE_SIZE * self.SCALE / 2
+
+    @property
+    def right_edge(self):
+        return self.CANVAS_WIDTH - self.left_edge
+
     def enter(self, boy, now):
         self.started_at = now
         boy.frame = 0
         boy.last_updated_at = now
         boy.invincible = True
+        boy.x = max(self.left_edge, min(self.right_edge, boy.x))
 
     def exit(self, boy):
         boy.invincible = False
 
     def update(self, boy, elapsed, now):
-        boy.x += boy.face_dir * self.SPEED * elapsed
+        # 왕복 경로를 펼쳐 계산해 긴 프레임에서도 이동 거리와 경계를 보존한다.
+        span = self.right_edge - self.left_edge
+        offset = boy.x - self.left_edge
+        phase = offset if boy.face_dir == 1 else 2 * span - offset
+        phase = (phase + self.SPEED * elapsed) % (2 * span)
+        if phase < span:
+            boy.x = self.left_edge + phase
+            boy.face_dir = 1
+        else:
+            boy.x = self.right_edge - (phase - span)
+            boy.face_dir = -1
         boy.frame = (boy.frame + 1) % 8
