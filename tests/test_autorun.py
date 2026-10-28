@@ -21,7 +21,7 @@ class AutoRunTests(unittest.TestCase):
         self.now += seconds
         self.boy.update()
 
-    def test_only_idle_can_enter_and_repeated_activation_does_not_extend_time(self):
+    def test_idle_and_run_can_enter_but_sleep_cannot_and_repeat_does_not_extend_time(self):
         self.assertTrue(self.boy.start_autorun())
         self.assertTrue(self.boy.invincible)
         self.advance(4)
@@ -30,8 +30,9 @@ class AutoRunTests(unittest.TestCase):
         self.assertEqual(self.boy.state, 'IDLE')
         self.assertFalse(self.boy.invincible)
         self.boy.press_direction(1)
-        self.assertFalse(self.boy.start_autorun())
+        self.assertTrue(self.boy.start_autorun())
         self.boy.release_direction(1)
+        self.advance(5)
         self.advance(5)
         self.assertEqual(self.boy.state, 'SLEEP')
         self.assertFalse(self.boy.start_autorun())

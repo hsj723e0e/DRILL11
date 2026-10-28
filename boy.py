@@ -46,16 +46,17 @@ class Boy:
         self.machine.add_transition(
             'wake_up', 'SLEEP', 'IDLE', after='reset_idle',
         )
-        self.machine.add_transition('begin_autorun', 'IDLE', 'AUTORUN')
+        self.machine.add_transition('begin_autorun', ['IDLE', 'RUN'], 'AUTORUN')
         self.machine.add_transition(
-            'finish_autorun', 'AUTORUN', 'IDLE', after='reset_idle',
+            'finish_autorun', 'AUTORUN', 'IDLE',
+            after=['clear_directions', 'reset_idle'],
         )
         self.machine.add_transition(
             'cancel_autorun', 'AUTORUN', 'RUN', after='reset_idle',
         )
 
     def start_autorun(self):
-        if self.state != 'IDLE':
+        if self.state not in ('IDLE', 'RUN'):
             return False
         self.begin_autorun()
         return True
@@ -65,6 +66,9 @@ class Boy:
 
     def exit_autorun(self):
         self.autorun.exit(self)
+
+    def clear_directions(self):
+        self.pressed_directions.clear()
 
     def update(self):
         now = monotonic()

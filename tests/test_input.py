@@ -52,14 +52,56 @@ class InputTests(unittest.TestCase):
                 self.send((main.SDL_KEYUP, key))
                 self.assertEqual(main.boy.state, 'IDLE')
 
-    def test_a_is_ignored_while_running_and_sleeping(self):
+    def test_a_activates_while_running_but_is_ignored_while_sleeping(self):
         self.send((main.SDL_KEYDOWN, main.SDLK_RIGHT))
         self.send((main.SDL_KEYDOWN, main.SDLK_a))
-        self.assertEqual(main.boy.state, 'RUN')
+        self.assertEqual(main.boy.state, 'AUTORUN')
         self.send((main.SDL_KEYUP, main.SDLK_RIGHT))
+        self.advance(5)
         self.advance(5)
         self.send((main.SDL_KEYDOWN, main.SDLK_a))
         self.assertEqual(main.boy.state, 'SLEEP')
+
+    def test_held_arrow_repeat_and_release_do_not_cancel_activation_from_run(self):
+        for key, direction in ((main.SDLK_LEFT, -1), (main.SDLK_RIGHT, 1)):
+            with self.subTest(key=key):
+                main.reset_world()
+                self.send((main.SDL_KEYDOWN, key), (main.SDL_KEYDOWN, main.SDLK_a))
+                self.send((main.SDL_KEYDOWN, key))  # 계속 누른 키의 반복 입력
+                self.assertEqual(main.boy.state, 'AUTORUN')
+                self.assertTrue(main.boy.invincible)
+                self.assertEqual(main.boy.face_dir, direction)
+                self.send((main.SDL_KEYUP, key))
+                x = main.boy.x
+                self.advance(0.25)
+                self.assertAlmostEqual(main.boy.x, x + direction * 100)
+                self.assertEqual(main.boy.state, 'AUTORUN')
+                self.send((main.SDL_KEYDOWN, key))  # 놓았다 다시 누르면 취소
+                self.assertEqual(main.boy.state, 'RUN')
+                self.assertFalse(main.boy.invincible)
+
+    def test_opposite_arrow_cancels_activation_from_run(self):
+        self.send(
+            (main.SDL_KEYDOWN, main.SDLK_LEFT),
+            (main.SDL_KEYDOWN, main.SDLK_a),
+            (main.SDL_KEYDOWN, main.SDLK_RIGHT),
+        )
+        self.assertEqual(main.boy.state, 'RUN')
+        self.assertEqual(main.boy.face_dir, 1)
+        self.send((main.SDL_KEYUP, main.SDLK_RIGHT))
+        self.assertEqual(main.boy.face_dir, -1)
+        self.send((main.SDL_KEYUP, main.SDLK_LEFT))
+        self.assertEqual(main.boy.state, 'IDLE')
+
+    def test_timeout_clears_previously_held_direction(self):
+        self.send((main.SDL_KEYDOWN, main.SDLK_LEFT), (main.SDL_KEYDOWN, main.SDLK_a))
+        self.advance(5)
+        self.assertEqual(main.boy.state, 'IDLE')
+        self.assertEqual(main.boy.pressed_directions, [])
+        self.send((main.SDL_KEYDOWN, main.SDLK_LEFT))
+        self.assertEqual(main.boy.state, 'RUN')
+        self.send((main.SDL_KEYUP, main.SDLK_LEFT))
+        self.assertEqual(main.boy.state, 'IDLE')
 
     def test_repeated_arrow_and_overlapping_directions_after_cancel(self):
         self.send(
