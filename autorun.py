@@ -27,6 +27,9 @@ class AutoRun:
         boy.invincible = False
 
     def update(self, boy, elapsed, now):
+        if now - self.started_at >= self.DURATION:
+            boy.finish_autorun()
+            return
         # 왕복 경로를 펼쳐 계산해 긴 프레임에서도 이동 거리와 경계를 보존한다.
         span = self.right_edge - self.left_edge
         offset = boy.x - self.left_edge

@@ -47,6 +47,9 @@ class Boy:
             'wake_up', 'SLEEP', 'IDLE', after='reset_idle',
         )
         self.machine.add_transition('begin_autorun', 'IDLE', 'AUTORUN')
+        self.machine.add_transition(
+            'finish_autorun', 'AUTORUN', 'IDLE', after='reset_idle',
+        )
 
     def start_autorun(self):
         if self.state != 'IDLE':
