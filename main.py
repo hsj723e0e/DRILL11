@@ -15,6 +15,8 @@ def handle_events():
             running = False
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             running = False
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
+            boy.start_autorun()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
             if boy.state == 'SLEEP':
                 boy.wake_up()
