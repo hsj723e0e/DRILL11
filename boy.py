@@ -2,6 +2,7 @@ from pico2d import load_image
 from transitions import Machine
 from math import pi
 from time import monotonic
+from autorun import AutoRun
 
 class Boy:
     def __init__(self):
@@ -9,13 +10,19 @@ class Boy:
         self.frame = 0
         self.face_dir = 1
         self.pressed_directions = []
+        self.invincible = False
+        self.autorun = AutoRun()
         self.image = load_image('animation_sheet.png')
         self.idle_started_at = monotonic()
         self.idle_elapsed = 0.0
         self.last_updated_at = self.idle_started_at
         self.machine = Machine(
             model=self,
-            states=['IDLE', 'RUN', 'SLEEP'],
+            states=[
+                'IDLE', 'RUN', 'SLEEP',
+                {'name': 'AUTORUN', 'on_enter': 'enter_autorun',
+                 'on_exit': 'exit_autorun'},
+            ],
             initial='IDLE',
             auto_transitions=False,
         )
@@ -39,6 +46,19 @@ class Boy:
         self.machine.add_transition(
             'wake_up', 'SLEEP', 'IDLE', after='reset_idle',
         )
+        self.machine.add_transition('begin_autorun', 'IDLE', 'AUTORUN')
+
+    def start_autorun(self):
+        if self.state != 'IDLE':
+            return False
+        self.begin_autorun()
+        return True
+
+    def enter_autorun(self):
+        self.autorun.enter(self, monotonic())
+
+    def exit_autorun(self):
+        self.autorun.exit(self)
 
     def update(self):
         now = monotonic()
