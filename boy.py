@@ -72,6 +72,8 @@ class Boy:
         elif self.state == 'RUN':
             self.x = max(25, min(775, self.x + self.face_dir * 200 * elapsed))
             self.frame = (self.frame + 1) % 8
+        elif self.state == 'AUTORUN':
+            self.autorun.update(self, elapsed, now)
 
     def press_direction(self, direction):
         if direction in self.pressed_directions:

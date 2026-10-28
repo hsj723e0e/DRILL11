@@ -16,3 +16,7 @@ class AutoRun:
 
     def exit(self, boy):
         boy.invincible = False
+
+    def update(self, boy, elapsed, now):
+        boy.x += boy.face_dir * self.SPEED * elapsed
+        boy.frame = (boy.frame + 1) % 8
