@@ -39,3 +39,14 @@ class AutoRun:
             boy.x = self.right_edge - (phase - span)
             boy.face_dir = -1
         boy.frame = (boy.frame + 1) % 8
+
+    def draw(self, boy):
+        row = 100 if boy.face_dir == 1 else 0
+        size = self.SPRITE_SIZE * self.SCALE
+        # 확대해도 기존 스프라이트의 발 위치가 유지되도록 중심을 올린다.
+        y = boy.y + (size - self.SPRITE_SIZE) / 2
+        boy.image.clip_draw(
+            boy.frame * self.SPRITE_SIZE, row,
+            self.SPRITE_SIZE, self.SPRITE_SIZE,
+            boy.x, y, size, size,
+        )

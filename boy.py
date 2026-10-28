@@ -112,7 +112,9 @@ class Boy:
         self.frame = (self.frame + 1) % 8
 
     def draw(self):
-        if self.state == 'SLEEP':
+        if self.state == 'AUTORUN':
+            self.autorun.draw(self)
+        elif self.state == 'SLEEP':
             row = 300 if self.face_dir == 1 else 200
             self.image.clip_composite_draw(
                 0, row, 100, 100, pi / 2, '', self.x, self.y - 25,
