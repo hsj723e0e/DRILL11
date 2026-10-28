@@ -50,6 +50,9 @@ class Boy:
         self.machine.add_transition(
             'finish_autorun', 'AUTORUN', 'IDLE', after='reset_idle',
         )
+        self.machine.add_transition(
+            'cancel_autorun', 'AUTORUN', 'RUN', after='reset_idle',
+        )
 
     def start_autorun(self):
         if self.state != 'IDLE':
@@ -83,7 +86,9 @@ class Boy:
             return
         self.pressed_directions.append(direction)
         self.face_dir = direction
-        if self.state in ('IDLE', 'SLEEP'):
+        if self.state == 'AUTORUN':
+            self.cancel_autorun()
+        elif self.state in ('IDLE', 'SLEEP'):
             self.start_run()
 
     def release_direction(self, direction):
