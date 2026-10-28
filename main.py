@@ -1,5 +1,4 @@
 from pico2d import *
-import random
 
 from grass import Grass
 from boy import Boy
@@ -55,13 +54,20 @@ def render_world():
 
 running = True
 
-open_canvas()
-reset_world()
-# game loop
-while running:
-    handle_events()
-    update_world()
-    render_world()
-    delay(0.01)
-# finalization code
-close_canvas()
+def main():
+    global running
+    running = True
+    open_canvas(800, 600)
+    try:
+        reset_world()
+        while running:
+            handle_events()
+            update_world()
+            render_world()
+            delay(0.01)
+    finally:
+        close_canvas()
+
+
+if __name__ == '__main__':
+    main()
